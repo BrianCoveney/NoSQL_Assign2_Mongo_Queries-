@@ -17,18 +17,14 @@ var total_rest = aggRest.toArray()[0]["count"]
 // Sort the documents by decreasing order.
 // Filter the documents so as to get just the first document
 // Use 'total_rest' in percentage calc
-db.restaurants.aggregate([
-  { "$group" : { "_id" : {"Cuisine" : "$cuisine"}, "total" : { "$sum" : 1 } } },
+var aggRest2 = db.restaurants.aggregate([
+  { "$group" : { "_id" : "$cuisine", "total" : { "$sum" : 1 } } },
   { "$sort" : { "total" : -1 } },
   { "$limit" : 1 },
   { "$project": {"count":1,"percentage":{"$multiply":[{"$divide":[100,total_rest]},"$total"]}}} 
 ])
-// prints: { "_id" : { "Cuisine" : "American " }, "percentage" : 24.381876256950193 }
-
-
-
-
-
+var cuisine_name = aggRest2.toArray()[0]["_id"]
+print(cuisine_name)
 
 
 //
