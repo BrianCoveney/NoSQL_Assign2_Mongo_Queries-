@@ -12,29 +12,23 @@
 // Finally, filter the documents so as to get just the first document
 //---------------------------------
 //
+
+var totalDocument = db.restaurants.count()
 db.restaurants.aggregate([
-  { "$group" : { "_id" : {"col" : "$cuisine"}, "total" : { "$sum" : 1 } } },
+  { "$group" : { "_id" : {"Cuisine" : "$cuisine"}, "total" : { "$sum" : 1 } } },
   { "$sort" : { "total" : -1 } },
-  {"$project":{"count":1,"percentage":{"$multiply":[{"$divide":[100,totalDocument]},"$total"]}}},
+  { "$project":{"count":1,"percentage":{"$multiply":[{"$divide":[100,totalDocument]},"$total"]}}},
   { "$limit" : 1 }
 ])
-var total_num = "$total"
-print(total_num)
-
-{"$project":{"count":1,"percentage":{"$multiply":[{"$divide":[100,totalDocument]},"$count"]}}},
-
-// prints: { "_id" : { "col" : "American " }, "total" : 12366 }
+// prints: { "_id" : { "Cuisine" : "American " }, "percentage" : 24.381876256950193 }
 
 
 // 2. Get the total amount of restaurants
 // { "_id" : "restaurant_id", "count" : 25359 }
-db.restaurants.aggregate([
+var totalRest = db.restaurants.aggregate([
   { "$group" : { "_id" : "restaurant_id", "count" : { "$sum" : 1 } } },
 ])
 
-
-
-print(totalRestaurants)
 
 
 
