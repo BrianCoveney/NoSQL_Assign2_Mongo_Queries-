@@ -14,16 +14,20 @@
 //
 db.restaurants.aggregate([
   { "$group" : { "_id" : {"col" : "$cuisine"}, "total" : { "$sum" : 1 } } },
-  { "$sort" : { "total" : -1 } }, 
+  { "$sort" : { "total" : -1 } },
+  {"$project":{"count":1,"percentage":{"$multiply":[{"$divide":[100,totalDocument]},"$total"]}}},
   { "$limit" : 1 }
 ])
+var total_num = "$total"
+print(total_num)
+
+{"$project":{"count":1,"percentage":{"$multiply":[{"$divide":[100,totalDocument]},"$count"]}}},
+
 // prints: { "_id" : { "col" : "American " }, "total" : 12366 }
 
 
 // 2. Get the total amount of restaurants
-// db.restaurants.count() // not proper aggregation command as required . prints 
-var totalRestaurants = 
-
+// { "_id" : "restaurant_id", "count" : 25359 }
 db.restaurants.aggregate([
   { "$group" : { "_id" : "restaurant_id", "count" : { "$sum" : 1 } } },
 ])
@@ -51,7 +55,7 @@ db.restaurants.aggregate([
 
 
 db.restaurants.aggregate([
-	{"$group":{"_id":{"cuisine":"$Chinese"},"count":{"$sum":1}}},
+	{"$group":{"_id":{"cuisine":"$American"},"count":{"$sum":1}}},
 	{ "$sort" : { "count" : -1 } } 
 ])
 
@@ -59,7 +63,7 @@ db.restaurants.aggregate([
 
 // precentage attempt - blah
 var totalDocument = db.restaurants.count()
-db.restaurants.aggregate({"$group":{"_id":{"cuisine":"$Chinese"},"count":{"$sum":1}}},
+db.restaurants.aggregate({"$group":{"_id": "cuisine","count":{"$sum":1}}},
                             {"$project":{"count":1,"percentage":{"$multiply":[{"$divide":[100,totalDocument]},"$count"]}}})
 
 
