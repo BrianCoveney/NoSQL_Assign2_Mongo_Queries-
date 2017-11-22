@@ -7,27 +7,26 @@
 //---------------------------------
 // 1. What kind of cuisine do New Yorkers prefer? 
 //
-// Group the restaurants by their cuisine style, counting how many are there per group.
-// Then Sort the documents by decreasing order.
-// Finally, filter the documents so as to get just the first document
-//---------------------------------
+// Get the total num restaurants and set as var 'total_res'  
+var aggRest = db.restaurants.aggregate([
+  { "$group" : { "_id" : "restaurant_id", "count" : { "$sum" : 1 } } },
+])
+var total_rest = aggRest.toArray()[0]["count"]
 //
-
-var totalDocument = db.restaurants.count()
+// Group the restaurants by their cuisine style, counting how many are there per group.
+// Sort the documents by decreasing order.
+// Filter the documents so as to get just the first document
+// Use 'total_rest' in percentage calc
 db.restaurants.aggregate([
   { "$group" : { "_id" : {"Cuisine" : "$cuisine"}, "total" : { "$sum" : 1 } } },
   { "$sort" : { "total" : -1 } },
-  { "$project":{"count":1,"percentage":{"$multiply":[{"$divide":[100,totalDocument]},"$total"]}}},
-  { "$limit" : 1 }
+  { "$limit" : 1 },
+  { "$project": {"count":1,"percentage":{"$multiply":[{"$divide":[100,total_rest]},"$total"]}}} 
 ])
 // prints: { "_id" : { "Cuisine" : "American " }, "percentage" : 24.381876256950193 }
 
 
-// 2. Get the total amount of restaurants
-// { "_id" : "restaurant_id", "count" : 25359 }
-var totalRest = db.restaurants.aggregate([
-  { "$group" : { "_id" : "restaurant_id", "count" : { "$sum" : 1 } } },
-])
+
 
 
 
