@@ -78,7 +78,6 @@ var aggBoro1 = db.restaurants.aggregate([
 ]) 
 //
 count_rest_borough = aggBoro1.toArray()[0]["count"];
-borough = aggBoro2.toArray()[0]["_id"];
 //
 //
 //---------------------------------
@@ -99,6 +98,8 @@ var aggBoro2 = db.restaurants.aggregate([
   { "$project": {"count":1,"percentage":{"$multiply":[{"$divide":[100, count_rest_borough]},"$count"]}}} 
 ]) 
 //
+borough = aggBoro2.toArray()[0]["_id"];
+//
 ratio_borough = aggBoro2.toArray()[0]["percentage"];
 //
 //
@@ -108,6 +109,82 @@ print("1. The kind of cuisine with more restaurants in the city is", cuisine_nam
 print ("2. The borough with smaller ratio of restaurants of this kind of cuisine is", borough, "(with a", ratio_borough, "percentage of restaurants of this kind)")
 //
 //
+//*********************************
+//  3. Zip Code
+//*********************************
 //
+//
+//---------------------------------
+// 3.1. Get the biggest five zipcodes of the borough
+//---------------------------------
+db.restaurants.aggregate([
+  { "$group" : { "_id" : "$address.zipcode", "total" : { "$sum" : 1 } } },
+  { "$sort" : { "total" : -1 } },
+  { "$limit" : 5},
+])
+//
+//
+// Sanity check: Find zipcode with a total of 2, and print that zipcode 
+// db.restaurants.aggregate([
+//   { "$group" : { "_id" : "$address.zipcode", "total" : { "$sum" : 1 } } },
+//   { "$sort" : { "total" : 1 } },
+//   { "$skip" : 20 },
+//   { "$limit" : 1},
+// ])
+// db.restaurants.aggregate([
+//   { $match : { "address.zipcode" : "11001" } },
+//   { "$sort" : { "cusine" : -1 } },
+// ]).pretty()
+//
+//
+//---------------------------------
+// 3.2. Get how many zipcodes of the borough include restaurants of the kind of cuisine we are looking for
+//---------------------------------
+db.restaurants.aggregate([
+  { "$project" : { 
+    "_id" : 0, "Borough" : "$borough", "Zip" : "$address.zipcode",
+    "Cuisine" : {"$cond" : [ {"$eq" : ["$cuisine", cuisine_name  ] }, 1, 0]} } },
+  { "$group" : { "_id" : "$Borough", "total" : { "$sum" : "$Zip" } } },
+  { "$sort" : { "total" : -1 } }
+])
+
+
+db.restaurants.aggregate([
+  { "$project" : { 
+    "_id" : 0, "Borough" : "$borough", 
+    "Cuisine" : {"$cond" : [ {"$eq" : ["$cuisine", cuisine_name ] }, 1, 0]} } },
+  { "$group" : { "_id" : "$Borough", "count" : { "$sum" : "$Cuisine" } } },
+  { "$sort" : { "count" : 1 } },
+  { "$skip" : 1 },
+  { "$limit" : 1 },
+  { "$project": {"count":1,"percentage":{"$multiply":[{"$divide":[100, count_rest_borough]},"$count"]}}} 
+]) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
