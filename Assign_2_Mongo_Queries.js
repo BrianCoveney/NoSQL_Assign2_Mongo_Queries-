@@ -16,7 +16,8 @@ var ratio_borough = 0;
 // 1.1. Grouping by 'restaurant_id' and get a total count of restaurants
 //---------------------------------
 var aggRest = db.restaurants.aggregate([
-  { "$group" : { "_id" : "restaurant_id", "count_restaurants" : { "$sum" : 1 } } },
+  { "$group" : { "_id" : "restaurant_id", 
+                 "count_restaurants" : { "$sum" : 1 } } },
 ])
 //
 //
@@ -30,7 +31,8 @@ total_num_rest = aggRest.toArray()[0]["count_restaurants"]
 // 		- Use var 'total_rest' in percentage calculation
 //---------------------------------
 var aggRest2 = db.restaurants.aggregate([
-  { "$group" : { "_id" : "$cuisine", "total" : { "$sum" : 1 } } },
+  { "$group" : { "_id" : "$cuisine", 
+                 "total" : { "$sum" : 1 } } },
   { "$sort" : { "total" : -1 } },
   { "$limit" : 1 },
   { "$project" : { "count":1, "percentage":{ "$multiply":[{ "$divide":[100, total_num_rest]}, "$total"]}}} 
@@ -47,7 +49,8 @@ print("1. The kind of cuisine with more restaurants in the city is", cuisine, "(
 //---------------------------------
 //
 db.restaurants.aggregate([
-  { "$group" : { "_id" : {"col" : "$cuisine", "bor" : "$borough"}, "total" : { "$sum" : 1 } } },
+  { "$group" : { "_id" : {"col" : "$cuisine", "bor" : "$borough"}, 
+                 "total" : { "$sum" : 1 } } },
   { "$sort" : { "total" : -1 } } 
 ])
 //
@@ -71,7 +74,8 @@ db.restaurants.aggregate([
 //---------------------------------
 //
 var aggBoro1 = db.restaurants.aggregate([
-  { "$group" : { "_id" : "$borough", "count" : { "$sum" : 1 } } },
+  { "$group" : { "_id" : "$borough", 
+                 "count" : { "$sum" : 1 } } },
   { "$sort" : { "count" : 1 } },
   { "$skip" : 1 },
   { "$limit" : 1 },
@@ -88,9 +92,9 @@ count_rest_borough = aggBoro1.toArray()[0]["count"];
 // 		- Use var 'ratio_borough' as our percentage calculation
 //---------------------------------
 var aggBoro2 = db.restaurants.aggregate([
-  { "$project" : { 
-    "_id" : 0, "Borough" : "$borough", 
-    "Cuisine" : {"$cond" : [ {"$eq" : ["$cuisine", cuisine_name ] }, 1, 0]} } },
+  { "$project" : { "_id" : 0, 
+                   "Borough" : "$borough", 
+                   "Cuisine" : {"$cond" : [ {"$eq" : ["$cuisine", cuisine_name ] }, 1, 0]} } },
   { "$group" : { "_id" : "$Borough", "count" : { "$sum" : "$Cuisine" } } },
   { "$sort" : { "count" : 1 } },
   { "$skip" : 1 },
@@ -118,7 +122,9 @@ print ("2. The borough with smaller ratio of restaurants of this kind of cuisine
 // 3.1. Get the biggest five zipcodes of the borough
 //---------------------------------
 db.restaurants.aggregate([
-  { "$group" : { "_id" : "$address.zipcode", "total" : { "$sum" : 1 } } },
+  { "$group" : { "_id" : 
+                 "$address.zipcode", 
+                 "total" : { "$sum" : 1 } } },
   { "$sort" : { "total" : -1 } },
   { "$limit" : 5},
 ])
@@ -141,36 +147,26 @@ db.restaurants.aggregate([
 // 3.2. Get how many zipcodes of the borough include restaurants of the kind of cuisine we are looking for
 //---------------------------------
 db.restaurants.aggregate([
-  { "$project" : { 
-    "_id" : 0, "Borough" : "$borough", "Zip" : "$address.zipcode",
-    "Cuisine" : {"$cond" : [ {"$eq" : ["$cuisine", cuisine_name  ] }, 1, 0]} } },
-  { "$group" : { "_id" : "$Borough", "total" : { "$sum" : "$Zip" } } },
-  { "$sort" : { "total" : -1 } }
+  { "$group" : { "_id" : {
+                 "Cuisine" : cuisine_name, 
+                 "Borough" : borough, 
+                 "zip" : "$address.zipcode" }, 
+                 "total" : { "$sum" : 1 } } },
+  { "$sort" : { "total" : -1 } },
+  { "$limit" : 5 },
 ])
 
 
+
 db.restaurants.aggregate([
-  { "$project" : { 
-    "_id" : 0, "Borough" : "$borough", 
-    "Cuisine" : {"$cond" : [ {"$eq" : ["$cuisine", cuisine_name ] }, 1, 0]} } },
-  { "$group" : { "_id" : "$Borough", "count" : { "$sum" : "$Cuisine" } } },
-  { "$sort" : { "count" : 1 } },
-  { "$skip" : 1 },
-  { "$limit" : 1 },
-  { "$project": {"count":1,"percentage":{"$multiply":[{"$divide":[100, count_rest_borough]},"$count"]}}} 
-]) 
+  { $match : { "address.zipcode" : "10003" } },
+]).pretty()
 
 
 
-
-
-
-
-
-
-
-
-
+db.restaurants.find(
+  { "address.zipcode" : "10003" }
+).pretty()
 
 
 
