@@ -128,6 +128,11 @@ db.restaurants.aggregate([
   { "$sort" : { "total" : -1 } },
   { "$limit" : 5},
 ])
+// { "_id" : "10003", "total" : 686 }
+// { "_id" : "10019", "total" : 675 }
+// { "_id" : "10036", "total" : 611 }
+// { "_id" : "10001", "total" : 520 }
+// { "_id" : "10022", "total" : 485 }
 //
 //
 // Sanity check: Find zipcode with a total of 2, and print that zipcode 
@@ -146,31 +151,33 @@ db.restaurants.aggregate([
 //---------------------------------
 // 3.2. Get how many zipcodes of the borough include restaurants of the kind of cuisine we are looking for
 //---------------------------------
+
 db.restaurants.aggregate([
-  { "$group" : { "_id" : {
-                 "Cuisine" : cuisine_name, 
-                 "Borough" : borough, 
-                 "zip" : "$address.zipcode" }, 
-                 "total" : { "$sum" : 1 } } },
-  { "$sort" : { "total" : -1 } },
-  { "$limit" : 5 },
+  {"$match" : {"cuisine" : cuisine_name, "borough" : borough}},
+  {"$group" : {"_id" : {"cuisine" : "$cuisine", "borough" : "$borough", "zip" : "$address.zipcode"}}},
+  {"$sort" : { "_id" : -1 } },
+  { "$limit" : 5},
 ])
 
 
 
 db.restaurants.aggregate([
-  { $match : { "address.zipcode" : "10003" } },
+  {"$match" : {"cuisine" : cuisine_name, "borough" : borough}},
+  {"$group" : {"_id" : {"cuisine" : "$cuisine", "borough" : "$borough", "zip" : "$address.zipcode"}, "count":{"$sum":1}}},
+  {"$sort" : { "count" : -1 } },
+  {"$limit" : 5},
+])
+
+
+db.restaurants.aggregate([
+  {"$match" : {"address.zipcode" : "10310", "cuisine" : cuisine_name, "borough" : borough}},
+  {"$group" : {"_id" : {"cuisine" : "$cuisine", "borough" : "$borough", "zip" : "$address.zipcode"}, "count":{"$sum":1}}},
+])
+
+
+db.restaurants.aggregate([
+  {"$match" : {"address.zipcode" : "10310"}}
 ]).pretty()
-
-
-
-db.restaurants.find(
-  { "address.zipcode" : "10003" }
-).pretty()
-
-
-
-
 
 
 
