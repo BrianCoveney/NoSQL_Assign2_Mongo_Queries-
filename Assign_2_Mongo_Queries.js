@@ -119,68 +119,50 @@ print ("2. The borough with smaller ratio of restaurants of this kind of cuisine
 //
 //
 //---------------------------------
-// 3.1. Get the biggest five zipcodes of the borough
+// 3.1. Get the biggest five zipcodes of the borough (Staten Island)
 //---------------------------------
+//
 db.restaurants.aggregate([
+  { "$match" : {  "borough" : borough}},
   { "$group" : { "_id" : 
                  "$address.zipcode", 
                  "total" : { "$sum" : 1 } } },
   { "$sort" : { "total" : -1 } },
   { "$limit" : 5},
 ])
-//
-//
-// Sanity check: Find zipcode with a total of 2, and print that zipcode 
-// db.restaurants.aggregate([
-//   { "$group" : { "_id" : "$address.zipcode", "total" : { "$sum" : 1 } } },
-//   { "$sort" : { "total" : 1 } },
-//   { "$skip" : 20 },
-//   { "$limit" : 1},
-// ])
-// db.restaurants.aggregate([
-//   { $match : { "address.zipcode" : "11001" } },
-//   { "$sort" : { "cusine" : -1 } },
-// ]).pretty()
-//
-//
-//---------------------------------
-// 3.2. Get how many zipcodes of the borough include restaurants of the kind of cuisine we are looking for
-//---------------------------------
-db.restaurants.aggregate([
-  { "$group" : { "_id" : {
-                 "Cuisine" : cuisine_name, 
-                 "Borough" : borough, 
-                 "zip" : "$address.zipcode" }, 
-                 "total" : { "$sum" : 1 } } },
+var zipcode1 = "10314"
+var zipcode2 = "10306"
+var zipcode3 = "10301"
+var zipcode4 = "10305"
+var zipcode5 = "10312"
+var numRest = 0;
+var aggBoroZip = db.restaurants.aggregate([
+  { "$match" : {  "borough" : borough, "address.zipcode" : zipcode5 } },
+  { "$group" : { "_id" : "$address.zipcode", "total" : { "$sum" : 1 } } },
   { "$sort" : { "total" : -1 } },
-  { "$limit" : 5 },
+  { "$limit" : 5},
+])
+// { "_id" : "10314", "total" : 189 }
+numRest = aggBoroZip.toArray()[0]["total"];
+print(numRest)
+
+
+var ratioZip5 = 0;
+
+
+var aggBoroZip2 = db.restaurants.aggregate([
+  { "$match" : {  "borough" : borough, "cuisine" : cuisine_name, "address.zipcode" : zipcode5 } },
+  { "$group" : { "_id" : "$address.zipcode", "total" : { "$sum" : 1 } } },
+  { "$sort" : { "total" : -1 } },
+  { "$limit" : 5},
+  { "$project": {"count":1,"percentage":{"$multiply":[{"$divide":[100, numRest]},"$total"]}}}
 ])
 
 
+ratioZip5 = aggBoroZip2.toArray()[0]["percentage"];
+print(ratioZip5);
 
-db.restaurants.aggregate([
-  { $match : { "address.zipcode" : "10003" } },
-]).pretty()
-
-
-
-db.restaurants.find(
-  { "address.zipcode" : "10003" }
-).pretty()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+print ("3. The zipcode of the borough with smaller ratio of restaurants of this kind of cuisine is zipcode =", zipcode5, "(with a", ratioZip5, "percentage of restaurants of this kind)")
+// 3. The zipcode of the borough with smaller ratio of restaurants of this kind of cuisine is zipcode = 10312 (with a 27.848101265822788 percentage of restaurants of this kind)
 
 
