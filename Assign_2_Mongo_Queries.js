@@ -26,9 +26,9 @@ total_num_rest = aggRest.toArray()[0]["count_restaurants"]
 //
 //---------------------------------
 // 1.2. Group the restaurants by their cuisine style, counting how many are there per group
-// 		- Sort the documents by decreasing order
-// 		- Filter the documents so as to get just the first document
-// 		- Use var 'total_rest' in percentage calculation
+//    - Sort the documents by decreasing order
+//    - Filter the documents so as to get just the first document
+//    - Use var 'total_rest' in percentage calculation
 //---------------------------------
 var aggRest2 = db.restaurants.aggregate([
   { "$group" : { "_id" : "$cuisine", 
@@ -56,8 +56,8 @@ db.restaurants.aggregate([
 //
 //
 db.restaurants.aggregate([
-	{"$group":{"_id":{"cuisine":"$American"},"count":{"$sum":1}}},
-	{ "$sort" : { "count" : -1 } } 
+  {"$group":{"_id":{"cuisine":"$American"},"count":{"$sum":1}}},
+  { "$sort" : { "count" : -1 } } 
 ])
 //
 //
@@ -67,10 +67,10 @@ db.restaurants.aggregate([
 //
 //---------------------------------
 // 2.1. Group the restaurants by their borough, with acount of each
-// 		- Sort the documents by increasing order
-//		- skip the first borough named 'missing'
-// 		- Filter the documents so as to get just the first relevant document
-// 		- Use var 'total_rest' in percentage calculation
+//    - Sort the documents by increasing order
+//    - skip the first borough named 'missing'
+//    - Filter the documents so as to get just the first relevant document
+//    - Use var 'total_rest' in percentage calculation
 //---------------------------------
 //
 var aggBoro1 = db.restaurants.aggregate([
@@ -86,10 +86,10 @@ count_rest_borough = aggBoro1.toArray()[0]["count"];
 //
 //---------------------------------
 // 2.2. Group the restaurants by their borough, with a count of the favoirite cuisine (returned from Q1)
-// 		- Sort the documents by increasing order
-//		- skip the first borough, as it's an outlier named 'Missing'
-// 		- Filter the documents so as to get just the first relevant document
-// 		- Use var 'ratio_borough' as our percentage calculation
+//    - Sort the documents by increasing order
+//    - skip the first borough, as it's an outlier named 'Missing'
+//    - Filter the documents so as to get just the first relevant document
+//    - Use var 'ratio_borough' as our percentage calculation
 //---------------------------------
 var aggBoro2 = db.restaurants.aggregate([
   { "$project" : { "_id" : 0, 
