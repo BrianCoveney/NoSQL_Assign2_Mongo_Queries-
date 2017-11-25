@@ -151,7 +151,7 @@ var aggBoroZip2 = db.restaurants.aggregate([
   { "$match" : {  "borough" : borough, "cuisine" : cuisine_name, "address.zipcode" : zipcode4 } },
   { "$group" : { "_id" : "$address.zipcode", "total" : { "$sum" : 1 } } },
   { "$sort" : { "total" : -1 } },
-  { "$limit" : 5},
+  c
   { "$project": {"count":1,"percentage":{"$multiply":[{"$divide":[100, numRest]},"$total"]}}}
 ])
 //
@@ -165,7 +165,7 @@ print ("3. The zipcode of the borough with smaller ratio of restaurants of this 
 //
 //
 //*********************************
-//  3. Reviews
+//  4. Reviews
 //*********************************/
 //
 // Query the collection to get the three restaurants of this borough, zipcode and kind of cuisine with better average review.
@@ -184,10 +184,33 @@ db.restaurants.aggregate([
       "name" : 1 } },
   { "$group" : { 
       "_id" : {
-          "Borough" : "$borough", 
-          "Cuisine" : "$cuisine", 
-          "Zip" : "$address.zipcode",
-          "Grades" : "$grades.grade", 
-          "Name" : "$name" } },  
-  },
+        "Borough" : "$borough", 
+        "Cuisine" : "$cuisine", 
+        "Zip" : "$address.zipcode", 
+        "Grades" : "$grades.grade", 
+        "Name" : "$name" }, 
+  }},
+  { "$sort" : { "Reviews" : -1 } },
 ])
+
+// prints:
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "Not Yet Graded" ], "Name" : "J'S On The Bay" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A" ], "Name" : "Fire Grilled Burgers" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "B", "A", "A" ], "Name" : "Guys Community Store" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A", "A" ], "Name" : "Gennaro'S -- Country Lanes" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A", "A" ], "Name" : "Lee'S Tavern" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A" ], "Name" : "Aladdin Grill" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A", "A" ], "Name" : "Royal Cucina" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "C", "A", "A" ], "Name" : "The Phunky Elephant" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A" ], "Name" : "Island Chateau" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "C" ], "Name" : "Liberty Catering" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "B", "B", "A", "B" ], "Name" : "D-Lish Juice Bar & Grill" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A", "A", "A" ], "Name" : "Perkins Family Restaurant & Bakery" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A" ], "Name" : "Danny Blaine" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "B" ], "Name" : "Boardwalk Cafe" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A" ], "Name" : "Mds Lunchbox" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A", "A" ], "Name" : "Rab'S Country Lane" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "C", "A", "B", "A" ], "Name" : "Rosebank Tavern" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A", "A" ], "Name" : "Bay Street Luncheonette & Soda Fountain" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A", "B" ], "Name" : "Labetti'S Post # 2159" } }
+
