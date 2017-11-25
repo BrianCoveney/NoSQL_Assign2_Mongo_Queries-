@@ -136,24 +136,19 @@ var zipcode3 = "10301" // 30.392%
 var zipcode4 = "10305" // 19.791%
 var zipcode5 = "10312" // 27.848%
 var numRest = 0;
+var ratioZip5 = 0;
 
-// change the zip code variables to one of the above, to get that zipcode's ratio
+// change the zip code variables  to one of the above, to get that zipcode's ratio
 var aggBoroZip = db.restaurants.aggregate([
-  { "$match" : {  "borough" : borough, "address.zipcode" : zipcode3 } },
+  { "$match" : {  "borough" : borough, "address.zipcode" : zipcode4 } },
   { "$group" : { "_id" : "$address.zipcode", "total" : { "$sum" : 1 } } },
   { "$sort" : { "total" : -1 } },
   { "$limit" : 5},
 ])
-// { "_id" : "10314", "total" : 189 }
 numRest = aggBoroZip.toArray()[0]["total"];
-print(numRest)
-
-
-var ratioZip5 = 0;
-
 
 var aggBoroZip2 = db.restaurants.aggregate([
-  { "$match" : {  "borough" : borough, "cuisine" : cuisine_name, "address.zipcode" : zipcode3 } },
+  { "$match" : {  "borough" : borough, "cuisine" : cuisine_name, "address.zipcode" : zipcode4 } },
   { "$group" : { "_id" : "$address.zipcode", "total" : { "$sum" : 1 } } },
   { "$sort" : { "total" : -1 } },
   { "$limit" : 5},
@@ -161,10 +156,10 @@ var aggBoroZip2 = db.restaurants.aggregate([
 ])
 
 
-ratioZip5 = aggBoroZip2.toArray()[0]["percentage"];
-print(ratioZip5);
+ratioZip = aggBoroZip2.toArray()[0]["percentage"];
+print(ratioZip);
 
-print ("3. The zipcode of the borough with smaller ratio of restaurants of this kind of cuisine is zipcode =", zipcode3, "(with a", ratioZip5, "percentage of restaurants of this kind)")
+print ("3. The zipcode of the borough with smaller ratio of restaurants of this kind of cuisine is zipcode =", zipcode4, "(with a", ratioZip, "percentage of restaurants of this kind)")
 
 
 // 3. The zipcode of the borough with smaller ratio of restaurants of this kind of cuisine is zipcode = 10312 (with a 27.848101265822788 percentage of restaurants of this kind)
