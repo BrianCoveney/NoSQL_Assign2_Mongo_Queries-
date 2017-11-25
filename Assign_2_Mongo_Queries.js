@@ -137,7 +137,7 @@ var zipcode4 = "10305" // 19.791%
 var zipcode5 = "10312" // 27.848%
 var numRest = 0;
 var ratioZip5 = 0;
-
+//
 // change the zip code variables  to one of the above, to get that zipcode's ratio
 var aggBoroZip = db.restaurants.aggregate([
   { "$match" : {  "borough" : borough, "address.zipcode" : zipcode4 } },
@@ -146,7 +146,7 @@ var aggBoroZip = db.restaurants.aggregate([
   { "$limit" : 5},
 ])
 numRest = aggBoroZip.toArray()[0]["total"];
-
+//
 var aggBoroZip2 = db.restaurants.aggregate([
   { "$match" : {  "borough" : borough, "cuisine" : cuisine_name, "address.zipcode" : zipcode4 } },
   { "$group" : { "_id" : "$address.zipcode", "total" : { "$sum" : 1 } } },
@@ -154,14 +154,40 @@ var aggBoroZip2 = db.restaurants.aggregate([
   { "$limit" : 5},
   { "$project": {"count":1,"percentage":{"$multiply":[{"$divide":[100, numRest]},"$total"]}}}
 ])
-
-
+//
+//
 ratioZip = aggBoroZip2.toArray()[0]["percentage"];
 print(ratioZip);
-
+//
 print ("3. The zipcode of the borough with smaller ratio of restaurants of this kind of cuisine is zipcode =", zipcode4, "(with a", ratioZip, "percentage of restaurants of this kind)")
-
-
-// 3. The zipcode of the borough with smaller ratio of restaurants of this kind of cuisine is zipcode = 10312 (with a 27.848101265822788 percentage of restaurants of this kind)
-
-
+//
+// 3. The zipcode of the borough with smaller ratio of restaurants of this kind of cuisine is zipcode = 10305 (with a 19.791666666666668 percentage of restaurants of this kind)
+//
+//
+//*********************************
+//  3. Reviews
+//*********************************/
+//
+// Query the collection to get the three restaurants of this borough, zipcode and kind of cuisine with better average review.
+//
+//
+db.restaurants.aggregate([
+  { "$match" : { 
+      "borough" : borough, 
+      "cuisine" : cuisine_name, 
+      "address.zipcode" : zipcode4 } },
+  { "$project": { 
+      "borough" : 1, 
+      "cuisine" : 1, 
+      "address.zipcode" : 1, 
+      "grades.grade": 1, 
+      "name" : 1 } },
+  { "$group" : { 
+      "_id" : {
+          "Borough" : "$borough", 
+          "Cuisine" : "$cuisine", 
+          "Zip" : "$address.zipcode",
+          "Grades" : "$grades.grade", 
+          "Name" : "$name" } },  
+  },
+])
