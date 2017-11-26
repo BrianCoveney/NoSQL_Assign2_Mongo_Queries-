@@ -2,7 +2,7 @@
 var total_num_rest = 0; 
 var cuisine_name = "";
 var ratio_cuisine = 0;
-var borough = "";
+var borough_name = "";
 var count_rest_boro = 0;
 var count_rest_with_cuisin = 0;
 var ratio_borough = 0;
@@ -40,7 +40,7 @@ var aggRest2 = db.restaurants.aggregate([
 //
 cuisine_name = aggRest2.toArray()[0]["_id"]
 ratio_cuisine = aggRest2.toArray()[0]["percentage"]
-print("1. The kind of cuisine with more restaurants in the city is", cuisine, "(with a", ratio_cuisine, "percentage of restaurants of the city)")
+print("1. The kind of cuisine with more restaurants in the city is", cuisine_name, "(with a", ratio_cuisine, "percentage of restaurants of the city)")
 //
 //
 //---------------------------------
@@ -102,7 +102,7 @@ var aggBoro2 = db.restaurants.aggregate([
   { "$project": {"count":1,"percentage":{"$multiply":[{"$divide":[100, count_rest_borough]},"$count"]}}} 
 ]) 
 //
-borough = aggBoro2.toArray()[0]["_id"];
+borough_name = aggBoro2.toArray()[0]["_id"];
 //
 ratio_borough = aggBoro2.toArray()[0]["percentage"];
 //
@@ -110,7 +110,7 @@ ratio_borough = aggBoro2.toArray()[0]["percentage"];
 print("1. The kind of cuisine with more restaurants in the city is", cuisine_name, "(with a", ratio_cuisine, "percentage of restaurants of the city)")
 //
 //
-print ("2. The borough with smaller ratio of restaurants of this kind of cuisine is", borough, "(with a", ratio_borough, "percentage of restaurants of this kind)")
+print ("2. The borough with smaller ratio of restaurants of this kind of cuisine is", borough_name, "(with a", ratio_borough, "percentage of restaurants of this kind)")
 //
 //
 //*********************************
@@ -123,7 +123,7 @@ print ("2. The borough with smaller ratio of restaurants of this kind of cuisine
 //---------------------------------
 //
 db.restaurants.aggregate([
-  { "$match" : {  "borough" : borough}},
+  { "$match" : {  "borough" : borough_name}},
   { "$group" : { "_id" : 
                  "$address.zipcode", 
                  "total" : { "$sum" : 1 } } },
@@ -140,7 +140,7 @@ var ratioZip5 = 0;
 //
 // change the zip code variables  to one of the above, to get that zipcode's ratio
 var aggBoroZip = db.restaurants.aggregate([
-  { "$match" : {  "borough" : borough, "address.zipcode" : zipcode4 } },
+  { "$match" : {  "borough" : borough_name, "address.zipcode" : zipcode4 } },
   { "$group" : { "_id" : "$address.zipcode", "total" : { "$sum" : 1 } } },
   { "$sort" : { "total" : -1 } },
   { "$limit" : 5},
@@ -148,10 +148,9 @@ var aggBoroZip = db.restaurants.aggregate([
 numRest = aggBoroZip.toArray()[0]["total"];
 //
 var aggBoroZip2 = db.restaurants.aggregate([
-  { "$match" : {  "borough" : borough, "cuisine" : cuisine_name, "address.zipcode" : zipcode4 } },
+  { "$match" : {  "borough" : borough_name, "cuisine" : cuisine_name, "address.zipcode" : zipcode4 } },
   { "$group" : { "_id" : "$address.zipcode", "total" : { "$sum" : 1 } } },
   { "$sort" : { "total" : -1 } },
-  c
   { "$project": {"count":1,"percentage":{"$multiply":[{"$divide":[100, numRest]},"$total"]}}}
 ])
 //
@@ -173,7 +172,7 @@ print ("3. The zipcode of the borough with smaller ratio of restaurants of this 
 //
 db.restaurants.aggregate([
   { "$match" : { 
-      "borough" : borough, 
+      "borough" : borough_name, 
       "cuisine" : cuisine_name, 
       "address.zipcode" : zipcode4 } },
   { "$project": { 
@@ -205,7 +204,7 @@ db.restaurants.aggregate([
 
 db.restaurants.aggregate([
      { "$match" : { 
-          "borough" : borough, 
+          "borough" : borough_name, 
           "cuisine" : cuisine_name, 
           "address.zipcode" : zipcode4 
         } },
@@ -213,11 +212,12 @@ db.restaurants.aggregate([
                  "AvgScore" : { "$avg" : "$grades.score" }, 
                  "SizeGrades": {"$size": "$grades.grade"}
      }},
-     {"$match": {"SizeGrades": {"$gt" : 4}}}
+     { "$match": {"SizeGrades": {"$gt" : 4}}},
+     { "$sort" : { "AvgScore" : -1 } },
 ])
 
 
+// { "name" : "Guys Community Store", "AvgScore" : 12.8, "SizeGrades" : 5 }
 // { "name" : "Rosebank Tavern", "AvgScore" : 9.833333333333334, "SizeGrades" : 6 }
 // { "name" : "Perkins Family Restaurant & Bakery", "AvgScore" : 8, "SizeGrades" : 5 }
-// { "name" : "Guys Community Store", "AvgScore" : 12.8, "SizeGrades" : 5 }
 
