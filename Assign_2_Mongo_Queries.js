@@ -181,6 +181,7 @@ db.restaurants.aggregate([
       "cuisine" : 1, 
       "address.zipcode" : 1, 
       "grades.grade": 1, 
+      "grades.score": 1, 
       "name" : 1 } },
   { "$group" : { 
       "_id" : {
@@ -188,29 +189,35 @@ db.restaurants.aggregate([
         "Cuisine" : "$cuisine", 
         "Zip" : "$address.zipcode", 
         "Grades" : "$grades.grade", 
+        "score" : "$grades.score",
         "Name" : "$name" }, 
   }},
-  { "$sort" : { "Reviews" : -1 } },
+  { "$sort" : { "Points" : -1 } },
+  { "$limit" : 4},
+])
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A", "A" ], "score" : [ 10, 8, 10, 9 ], "Name" : "Gennaro'S -- Country Lanes" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A" ], "score" : [ 12, 7 ], "Name" : "Fire Grilled Burgers" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "Not Yet Graded" ], "score" : [ 4 ], "Name" : "J'S On The Bay" } }
+// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "B", "B", "A", "B" ], "score" : [ 23, 25, 11, 18 ], "Name" : "D-Lish Juice Bar & Grill" } }
+
+
+
+
+db.restaurants.aggregate([
+     { "$match" : { 
+          "borough" : borough, 
+          "cuisine" : cuisine_name, 
+          "address.zipcode" : zipcode4 
+        } },
+     {"$project" : {"_id" :0, "name" : 1,
+                 "AvgScore" : { "$avg" : "$grades.score" }, 
+                 "SizeGrades": {"$size": "$grades.grade"}
+     }},
+     {"$match": {"SizeGrades": {"$gt" : 4}}}
 ])
 
-// prints:
-// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "Not Yet Graded" ], "Name" : "J'S On The Bay" } }
-// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A" ], "Name" : "Fire Grilled Burgers" } }
-// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "B", "A", "A" ], "Name" : "Guys Community Store" } }
-// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A", "A" ], "Name" : "Gennaro'S -- Country Lanes" } }
-// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A", "A" ], "Name" : "Lee'S Tavern" } }
-// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A" ], "Name" : "Aladdin Grill" } }
-// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A", "A" ], "Name" : "Royal Cucina" } }
-// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "C", "A", "A" ], "Name" : "The Phunky Elephant" } }
-// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A" ], "Name" : "Island Chateau" } }
-// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "C" ], "Name" : "Liberty Catering" } }
-// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "B", "B", "A", "B" ], "Name" : "D-Lish Juice Bar & Grill" } }
-// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A", "A", "A" ], "Name" : "Perkins Family Restaurant & Bakery" } }
-// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A" ], "Name" : "Danny Blaine" } }
-// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "B" ], "Name" : "Boardwalk Cafe" } }
-// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A" ], "Name" : "Mds Lunchbox" } }
-// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A", "A" ], "Name" : "Rab'S Country Lane" } }
-// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "C", "A", "B", "A" ], "Name" : "Rosebank Tavern" } }
-// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A", "A" ], "Name" : "Bay Street Luncheonette & Soda Fountain" } }
-// { "_id" : { "Borough" : "Staten Island", "Cuisine" : "American ", "Zip" : "10305", "Grades" : [ "A", "A", "A", "B" ], "Name" : "Labetti'S Post # 2159" } }
+
+// { "name" : "Rosebank Tavern", "AvgScore" : 9.833333333333334, "SizeGrades" : 6 }
+// { "name" : "Perkins Family Restaurant & Bakery", "AvgScore" : 8, "SizeGrades" : 5 }
+// { "name" : "Guys Community Store", "AvgScore" : 12.8, "SizeGrades" : 5 }
 
